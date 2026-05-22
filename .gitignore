@@ -1,0 +1,94 @@
+# =====================================================================
+# Python
+# =====================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Coverage / testing
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Type-checker caches
+.mypy_cache/
+.pyre/
+.pytype/
+.ruff_cache/
+
+# =====================================================================
+# C++ / CMake
+# =====================================================================
+build/
+cmake-build-*/
+out/
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+Makefile
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.exe
+compile_commands.json
+.cmake/
+
+# =====================================================================
+# Rust
+# =====================================================================
+target/
+Cargo.lock
+**/*.rs.bk
+
+# =====================================================================
+# IDE and editor
+# =====================================================================
+.vscode/
+.idea/
+*.iml
+.DS_Store
+*.swp
+*.swo
+*~
+.history/
+
+# =====================================================================
+# Recorded data (commit small samples explicitly with `git add -f`)
+# =====================================================================
+data/recordings/*
+!data/recordings/.gitkeep
+!data/sample_*.csv

@@ -1,0 +1,21 @@
+# =====================================================================
+# Python dependencies for the experiments in this directory.
+# Pinned loosely; bump them as needed and update python/README.md.
+#
+# All packages are intentionally small and well-known. Do not add web
+# frameworks, ML libraries, or data science stacks here. See CLAUDE.md
+# section "Minimal dependencies".
+# =====================================================================
+
+# Serial-port abstraction used everywhere. Cross-platform.
+pyserial>=3.5,<4.0
+
+# High-level RPLIDAR driver with C1 support. Wraps pyserial and decodes
+# the wire format described in docs/protocol-notes.md.
+pyrplidar>=0.1.2
+
+# Numerical work: polar-to-cartesian, smoothing buffers, simple math.
+numpy>=1.26,<3.0
+
+# Visualization for live plots and CSV replay.
+matplotlib>=3.8,<4.0
