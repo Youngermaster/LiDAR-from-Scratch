@@ -1,0 +1,11 @@
+# Placeholder for the rplidar_sdk git submodule.
+#
+# To populate it from the repo root:
+#
+#   git submodule add https://github.com/Slamtec/rplidar_sdk \
+#       cpp/third_party/rplidar_sdk
+#   git submodule update --init --recursive
+#
+# After that, the C++ experiments will build with:
+#
+#   cd cpp && cmake -S . -B build && cmake --build build --parallel
