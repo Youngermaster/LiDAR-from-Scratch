@@ -1,0 +1,14 @@
+[package]
+name = "hello_serial"
+version = "0.1.0"
+edition = "2021"
+
+# Single binary, named hello_serial, source at src/main.rs.
+[[bin]]
+name = "hello_serial"
+path = "src/main.rs"
+
+[dependencies]
+# Cross-platform serial port enumeration and I/O. Pinned to the 4.x
+# series; the API has been stable since 2022.
+serialport = "4.3"

@@ -1,0 +1,19 @@
+# =====================================================================
+# Cargo workspace for the Rust track.
+#
+# Each experiment is its own crate under `experiments/`. Add new crates
+# to the `members` list below as the track grows.
+#
+# Existing community RPLIDAR crates worth looking at if you decide to
+# extend this track into a real driver:
+#   - https://crates.io/crates/rplidar_drv
+#   - https://crates.io/crates/rplidar
+# Both predate the C1 and may need patching. The point of this track is
+# the learning, not the install.
+# =====================================================================
+
+[workspace]
+members = [
+    "experiments/01_hello_serial",
+]
+resolver = "2"
