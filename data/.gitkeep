@@ -1,0 +1,8 @@
+# This directory holds small sample CSV recordings produced by
+# experiment 08 (save_scan_to_csv) and replayed by experiment 09
+# (replay_recorded_scan). Commit short samples here so other people can
+# run the offline experiments without having a LiDAR plugged in.
+#
+# Large recordings (more than a few megabytes) should not be committed;
+# regenerate them locally. The repo's .gitignore lets through any file
+# matching `sample_*.csv` but excludes everything under data/recordings/.
