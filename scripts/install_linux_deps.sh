@@ -53,9 +53,16 @@ python3 --version || true
 cmake --version | head -n 1 || true
 git --version || true
 
-log "Reminder: add yourself to the dialout group so you can open /dev/ttyUSB*:"
+log "IMPORTANT - serial port permissions:"
+log "  Add yourself to the dialout group so you can open /dev/ttyUSB*:"
 log "    sudo usermod -aG dialout \"\$USER\""
-log "Then log out and back in for the group change to take effect."
+log "  Then log out and back in for the group change to take effect."
+log "  Confirm with: groups | grep dialout"
+log ""
+log "  Arch and derivatives use the 'uucp' group instead of 'dialout'."
+log "  If ModemManager is installed it may briefly grab the LiDAR on"
+log "  connect; remove it (sudo apt remove modemmanager) if that"
+log "  causes the first scan to fail. See docs/hardware-setup.md."
 
 log "Done. Next steps:"
 log "  1) ./scripts/detect_lidar_port.sh"

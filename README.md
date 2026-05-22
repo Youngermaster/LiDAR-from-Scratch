@@ -77,19 +77,26 @@ not the build system.
 ## Quickstart on macOS (Apple Silicon)
 
 1. Plug the LiDAR into a USB port and confirm it spins up after a moment.
-2. Install the host dependencies:
+2. **Allow the accessory to connect.** On Apple Silicon Macs running
+   macOS Ventura or newer, new USB devices are gated behind a system
+   setting. Open **System Settings -> Privacy & Security ->
+   "Allow accessories to connect"** and either accept the prompt when
+   it appears or set the policy to "Always" temporarily. See
+   [`docs/hardware-setup.md`](./docs/hardware-setup.md) for the full
+   explanation. Skip this step on Intel Macs.
+3. Install the host dependencies:
 
    ```bash
    ./scripts/install_macos_deps.sh
    ```
 
-3. Confirm the OS sees the sensor:
+4. Confirm the OS sees the sensor:
 
    ```bash
    ./scripts/detect_lidar_port.sh
    ```
 
-4. Run the first Python experiment:
+5. Run the first Python experiment:
 
    ```bash
    cd python
@@ -112,6 +119,11 @@ first (port name, cable, motor not spinning) and a code problem second. See
 
 ## Quickstart on Linux (Ubuntu 24.04)
 
+Linux does not gate USB devices behind a permission prompt, but it does
+require your user account to be in the `dialout` group before you can
+open `/dev/ttyUSB*`. The install script reminds you; do it once and log
+out and back in.
+
 ```bash
 ./scripts/install_linux_deps.sh
 sudo usermod -aG dialout "$USER"   # log out and back in for this to take effect
@@ -120,6 +132,23 @@ cd python && python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python experiments/01_hello_lidar.py
 ```
+
+See [`docs/hardware-setup.md`](./docs/hardware-setup.md) for distro
+quirks (Arch uses `uucp` instead of `dialout`, ModemManager may grab
+the port, SELinux may block sandboxed shells).
+
+## Quickstart on Windows (10 and 11)
+
+Windows does not require group membership but it does require the
+correct USB-serial driver to be installed before the LiDAR appears as
+a `COMx` port:
+
+- **CP210x** adapters: install the driver from silabs.com.
+- **CH340 / CH341** adapters: install the driver from wch-ic.com.
+
+After installing, find the assigned port under Device Manager -> Ports
+(COM & LPT) and pass it explicitly: `python experiments/01_hello_lidar.py
+--port COM3`.
 
 ---
 

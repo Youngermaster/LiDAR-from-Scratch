@@ -60,10 +60,23 @@ exit, that is a bug worth reporting.
   failure modes.
 - `argparse` for CLI arguments. `--port` is always optional; auto-detect
   is the default.
-- `try / finally` around the connect/scan/disconnect lifecycle so the
-  motor is always stopped on exit, including on Ctrl+C and exceptions.
+- Every experiment uses `with RPLidarC1(...) as lidar:` so the motor
+  is always stopped and the port released, including on Ctrl+C and
+  exceptions.
 - Type hints on all function signatures.
-- No cross-experiment imports. Each file is self-contained on purpose.
+
+## The `lib/` package
+
+`lib/rplidar_c1.py` is a small, from-scratch RPLIDAR C1 driver built on
+`pyserial`. Per CLAUDE.md the `lib/` directory is reserved for code
+that is genuinely shared by three or more experiments; the driver
+qualifies (every experiment that talks to the sensor uses it).
+
+We do not depend on the community `pyrplidar` package because its
+decoder is broken for the C1's firmware. See the comment block in
+`requirements.txt` and the docstring at the top of `lib/rplidar_c1.py`
+for the rationale. The protocol it implements is documented in
+[`../docs/protocol-notes.md`](../docs/protocol-notes.md).
 
 ## Common failures and what they mean
 

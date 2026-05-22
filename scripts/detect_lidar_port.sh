@@ -37,6 +37,11 @@ print_macos_diagnostic() {
         echo "  /dev/cu.SLAB_USBtoUART   (older Silicon Labs driver)"
         echo
         echo "Hints:"
+        echo "  - On Apple Silicon: check System Settings -> Privacy & Security"
+        echo "    -> 'Allow accessories to connect'. New USB devices are blocked"
+        echo "    until allowed; the default 'Ask' prompt is easy to miss when"
+        echo "    plugging through a hub. Set to 'Always' temporarily and replug"
+        echo "    DIRECTLY into the Mac. See docs/hardware-setup.md."
         echo "  - Replug the USB cable. Use a known data-capable cable."
         echo "  - If the LED on the adapter board does not light, the cable"
         echo "    is most likely charge-only."
@@ -56,7 +61,11 @@ print_linux_diagnostic() {
         echo "  - Run 'dmesg | tail' and look for 'cp210x' or 'ch341'."
         echo "  - Permission denied? Add yourself to the dialout group:"
         echo "      sudo usermod -aG dialout \$USER"
-        echo "    then log out and back in."
+        echo "    then log out and back in. Arch uses 'uucp' instead."
+        echo "  - ModemManager can grab USB-serial devices briefly on connect."
+        echo "    If the first scan fails right after plug-in, consider:"
+        echo "      sudo apt remove modemmanager"
+        echo "  - Full troubleshooting: docs/hardware-setup.md."
     } 1>&2
 }
 

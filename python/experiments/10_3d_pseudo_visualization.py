@@ -6,43 +6,14 @@ Purpose
 -------
 Stack consecutive 2D scans along a Z axis and render them with
 matplotlib's 3D scatter. The Z axis here represents *time*, not height.
-This is the experiment that makes the limits of a 2D LiDAR concrete:
-without a tilt mechanism or motion through space, "3D" from a C1 is
-really just "many 2D scans drawn on the same canvas".
-
-What this teaches
------------------
-- The difference between a 2D LiDAR and a 3D LiDAR. A 2D unit measures a
-  ring; stacking rings over time does not produce true 3D structure
-  unless the sensor itself moves or rotates out of plane.
-- The case for a depth camera (Intel RealSense, Stereolabs) or a 3D
-  LiDAR (Velodyne, Ouster) later, when 3D structure is actually needed.
-- How to render a 3D scatter cleanly: axes-equal in the plane, a small
-  marker at the origin for orientation, and a colormap on Z so older
-  scans fade visually.
+This experiment makes the limits of a 2D LiDAR concrete: without a tilt
+mechanism or motion through space, "3D" from a C1 is really just "many
+2D scans drawn on the same canvas".
 
 Run
 ---
-    # Live, accumulating N revolutions then redrawing:
     python experiments/10_3d_pseudo_visualization.py --revolutions 30
-
-    # Or replay from a CSV recorded with experiment 08:
     python experiments/10_3d_pseudo_visualization.py --input data/sample_room_01.csv
-
-Expected output
----------------
-    A 3D matplotlib window opens. Each revolution becomes a slice in Z.
-    Older slices use cooler colours. The scene rotates with the mouse;
-    use the toolbar to reset the view.
-
-Common failures
----------------
-- "matplotlib 3D toolkit not available": ancient matplotlib. Upgrade.
-- Plot is flat-looking: increase --revolutions. A single ring on Z=0
-  does not show structure.
-- Memory growth over very long runs: rendered points accumulate. Restart
-  the experiment with --revolutions and a finite count, or use --input
-  to replay a recording.
 """
 
 from __future__ import annotations
@@ -58,16 +29,15 @@ from pathlib import Path
 from typing import Iterator, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 # 3D toolkit is registered as a side effect of importing this submodule.
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
-from pyrplidar import PyRPlidar
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.rplidar_c1 import RPLidarC1, DEFAULT_MOTOR_PWM  # noqa: E402
 
 
 DEFAULT_BAUDRATE = 460800
-DEFAULT_MOTOR_PWM = 500
 
 
 def auto_detect_port() -> Optional[str]:
@@ -85,7 +55,6 @@ def auto_detect_port() -> Optional[str]:
 def iter_revolutions_from_csv(
     csv_path: Path,
 ) -> Iterator[List[Tuple[float, float]]]:
-    """Yield one (angle, distance) list per revolution from a recorded CSV."""
     current_idx: Optional[int] = None
     bucket: List[Tuple[float, float]] = []
     with csv_path.open() as fh:
@@ -108,21 +77,11 @@ def iter_revolutions_from_csv(
 def iter_revolutions_from_lidar(
     port: str, baudrate: int, motor_pwm: int, interrupted
 ) -> Iterator[List[Tuple[float, float]]]:
-    """Yield one (angle, distance) list per revolution from a live sensor.
-
-    Cleanly stops the motor on exit via the caller's `finally` block; we
-    do not own the lidar handle here, so this function is a generator
-    whose lifetime ends when the caller stops iterating.
-    """
-    lidar = PyRPlidar()
-    try:
-        lidar.connect(port=port, baudrate=baudrate, timeout=3.0)
+    with RPLidarC1(port=port, baudrate=baudrate, timeout=2.0) as lidar:
         lidar.set_motor_pwm(motor_pwm)
-        scan_gen = lidar.start_scan()
-
         bucket: List[Tuple[float, float]] = []
         seen_start = False
-        for sample in scan_gen():
+        for sample in lidar.iter_scans():
             if interrupted["flag"]:
                 break
             if sample.start_flag:
@@ -134,16 +93,6 @@ def iter_revolutions_from_lidar(
                 bucket.append((sample.angle, sample.distance))
         if bucket:
             yield bucket
-    finally:
-        try:
-            lidar.stop()
-            lidar.set_motor_pwm(0)
-        except Exception as exc:
-            print(f"Warning: shutdown step failed: {exc}", file=sys.stderr)
-        try:
-            lidar.disconnect()
-        except Exception as exc:
-            print(f"Warning: disconnect failed: {exc}", file=sys.stderr)
 
 
 def parse_args() -> argparse.Namespace:
@@ -152,8 +101,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--port", default=None)
     parser.add_argument("--baudrate", type=int, default=DEFAULT_BAUDRATE)
     parser.add_argument("--motor-pwm", type=int, default=DEFAULT_MOTOR_PWM)
-    parser.add_argument("--revolutions", type=int, default=30,
-                        help="Number of stacked slices. Ignored if --input is used.")
+    parser.add_argument("--revolutions", type=int, default=30)
     parser.add_argument("--max-distance-m", type=float, default=8.0)
     parser.add_argument("--input", type=Path, default=None,
                         help="Replay from CSV instead of using a live sensor.")
@@ -221,12 +169,9 @@ def main() -> int:
             if limit is not None and rev_idx + 1 >= limit:
                 break
 
-        # Block until the user closes the window so they can interact
-        # with the final pseudo-3D cloud.
         plt.ioff()
         if plt.fignum_exists(fig.number):
             plt.show()
-
     except KeyboardInterrupt:
         print("\nInterrupted.")
     finally:

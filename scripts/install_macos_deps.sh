@@ -66,7 +66,18 @@ python3.11 --version || true
 cmake --version | head -n 1 || true
 git --version || true
 
-log "Done. Next steps:"
+log "Done."
+log ""
+log "IMPORTANT - macOS USB accessory permission (Apple Silicon only):"
+log "  On M-series Macs running Ventura or newer, new USB devices are"
+log "  blocked by default until you allow them. If the LiDAR does not"
+log "  appear in /dev/cu.* after plugging it in, open:"
+log "    System Settings -> Privacy & Security -> Allow accessories to connect"
+log "  Set it to 'Always' temporarily, replug the LiDAR directly into the"
+log "  Mac (not through a hub), then switch the setting back to 'Ask'."
+log "  Full notes in docs/hardware-setup.md."
+log ""
+log "Next steps:"
 log "  1) ./scripts/detect_lidar_port.sh        # confirm the OS sees the sensor"
 log "  2) cd python && python3.11 -m venv .venv && source .venv/bin/activate"
 log "  3) pip install -r requirements.txt"

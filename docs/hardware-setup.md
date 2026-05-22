@@ -81,6 +81,95 @@ sudo usermod -aG dialout "$USER"
 
 Then log out and back in for the group change to take effect.
 
+## OS-level permissions
+
+Even with a healthy cable, the right driver, and a working sensor, the
+host operating system may refuse to let you talk to the LiDAR until you
+grant a specific permission. These are the gotchas, ordered by OS.
+
+### macOS (Apple Silicon, Ventura and newer)
+
+On M-series Macs, macOS gates USB accessories behind a setting called
+**Allow accessories to connect**. The first time you plug in a device
+the OS may show a confirmation prompt; if you miss it, dismiss it, or
+the device is connected through a hub at boot, the device is silently
+denied and never appears in `ioreg` or `/dev/cu.*`.
+
+Symptoms:
+
+- `./scripts/detect_lidar_port.sh` reports no candidate ports.
+- `ioreg -p IOUSB -l` does not list a CP210x, CH340, or SLAMTEC entry.
+- Plugging the same sensor into a Linux machine works immediately.
+
+Fix:
+
+1. Open **System Settings -> Privacy & Security**, scroll to
+   "Allow accessories to connect", and temporarily set it to **Always**.
+2. Unplug the LiDAR. Wait a few seconds.
+3. Plug it directly into the Mac (not through a hub) and re-run
+   `./scripts/detect_lidar_port.sh`.
+4. Once it works, you can switch the setting back to "Ask for new
+   accessories"; you will be prompted by name on the next replug and
+   can approve permanently.
+
+Notes:
+
+- This setting only exists on Apple Silicon. Intel Macs do not gate
+  USB devices this way.
+- Even after the permission is granted, some USB hubs that work fine
+  on Linux fail to pass USB-serial bridges cleanly on macOS. If the
+  device shows up direct-plugged but not through a hub, prefer a
+  powered hub or a direct connection.
+
+### Linux (Ubuntu 24.04, Debian-family)
+
+Serial devices under `/dev/ttyUSB*` are owned by `root:dialout`. Without
+membership in the `dialout` group, opening the port fails with
+`PermissionError: [Errno 13] Permission denied`.
+
+Fix once per user account:
+
+```bash
+sudo usermod -aG dialout "$USER"
+```
+
+You must **log out and back in** for the new group to apply to your
+shell. Confirm with:
+
+```bash
+groups | grep dialout
+```
+
+Other Linux pitfalls:
+
+- **Arch and derivatives** use the `uucp` group instead of `dialout`.
+  Substitute the group name accordingly.
+- **ModemManager** can briefly grab any USB-serial device on connect to
+  probe it as a modem, which makes the first scan fail. If you hit
+  this, either uninstall ModemManager (`sudo apt remove modemmanager`)
+  or add a udev rule that exempts the LiDAR (`ENV{ID_MM_DEVICE_IGNORE}="1"`
+  for the relevant `idVendor`/`idProduct`).
+- **SELinux** on Fedora/RHEL can deny serial access from sandboxed
+  shells. Run from a normal terminal first to rule this out.
+
+### Windows (10 and 11)
+
+USB-serial bridges need their vendor driver before they appear as a
+COM port:
+
+- **CP210x** (Silicon Labs): download from silabs.com. Windows Update
+  usually installs it automatically; check Device Manager for a yellow
+  triangle on "USB to UART Bridge" if it did not.
+- **CH340 / CH341** (WCH): download from wch-ic.com. Windows does not
+  ship this driver by default.
+
+After install the LiDAR appears as `COMx`. Find the number under Device
+Manager -> Ports (COM & LPT). Pass it to any experiment with
+`--port COM3` (substituting your actual number).
+
+Permission-wise, Windows does not require group membership to open a
+COM port. The driver itself is the gate.
+
 ## Wiring detail (for reference only)
 
 You do not need to wire the sensor by hand if you are using the supplied

@@ -5,18 +5,18 @@
 Purpose
 -------
 Start the motor, request a stream of scan samples, print the first N of
-them, and stop the motor cleanly. This is the first experiment where the
-sensor actually spins and produces data.
+them, and stop the motor cleanly. This is the first experiment where
+the sensor actually spins and produces data.
 
 What this teaches
 -----------------
 - The scan data structure: each sample is (quality, angle_deg,
-  distance_mm, start_flag). The start_flag bit marks the first sample of
-  a new revolution.
+  distance_mm, start_flag). The start_flag bit marks the first sample
+  of a new revolution.
 - That distance == 0 is a special value meaning "no return". You will
   see plenty of zeros, especially indoors with windows or open spaces.
-- That the motor must be stopped on exit, including on Ctrl+C. This file
-  uses a try / finally guard and a SIGINT handler.
+- That the motor must be stopped on exit, including on Ctrl+C. The
+  RPLidarC1 context manager guarantees this.
 
 Run
 ---
@@ -24,28 +24,24 @@ Run
     python experiments/03_basic_scan_print.py --count 200
 
     # Print continuously, Ctrl+C to stop:
-    python experiments/03_basic_scan_print.py
+    python experiments/03_basic_scan_print.py --count 0
 
 Expected output
 ---------------
-    Port: /dev/cu.usbserial-0001  (baudrate=460800)
-    Starting motor at PWM 500.
+    Port: /dev/cu.usbserial-1130  (baudrate=460800)
+    Starting motor at PWM 660.
     Scanning. Press Ctrl+C to stop.
     [    0]  start=1  q=15  angle=  0.84  dist= 2410.0
     [    1]  start=0  q=15  angle=  1.55  dist= 2406.5
     ...
-    [  199]  start=1  q=15  angle=  0.79  dist= 2418.0
-    Stopping motor.
-    Disconnected.
 
 Common failures
 ---------------
-- "Scan generator raised TimeoutError": the motor probably did not start.
-  Listen for the rotor spinning up. If silent, the adapter board's DTR
-  line may not be wired through; try plugging into a different USB port.
-- All samples have distance=0 and quality=0: the sensor is connected but
-  not seeing anything. Cover the rotating head with your hand briefly;
-  the next revolution's samples should show a small distance value.
+- All samples have distance=0 and quality=0: the sensor is connected
+  but not seeing anything. Cover the head with your hand; the next
+  revolution should show a small distance.
+- "Bad response descriptor sync bytes": a previous run left the sensor
+  streaming. Replug and try again.
 """
 
 from __future__ import annotations
@@ -55,14 +51,15 @@ import glob
 import platform
 import signal
 import sys
+from pathlib import Path
 from typing import Optional
 
-from pyrplidar import PyRPlidar
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from lib.rplidar_c1 import RPLidarC1, DEFAULT_MOTOR_PWM  # noqa: E402
 
 
 DEFAULT_BAUDRATE = 460800
-DEFAULT_MOTOR_PWM = 500     # 0..1023. 500 is a conservative C1 default.
-DEFAULT_SCAN_COUNT = 200    # 0 means "scan forever".
+DEFAULT_SCAN_COUNT = 200
 
 
 def auto_detect_port() -> Optional[str]:
@@ -82,7 +79,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--port", default=None)
     parser.add_argument("--baudrate", type=int, default=DEFAULT_BAUDRATE)
     parser.add_argument("--motor-pwm", type=int, default=DEFAULT_MOTOR_PWM,
-                        help="PWM value 0..1023. C1 nominal is around 500.")
+                        help=f"PWM 0..1023. C1 default: {DEFAULT_MOTOR_PWM}.")
     parser.add_argument("--count", type=int, default=DEFAULT_SCAN_COUNT,
                         help="Number of samples to print. 0 = run until Ctrl+C.")
     return parser.parse_args()
@@ -96,58 +93,31 @@ def main() -> int:
         return 2
 
     print(f"Port: {port}  (baudrate={args.baudrate})")
-    lidar = PyRPlidar()
 
-    # We capture Ctrl+C so the finally block still runs to stop the motor
-    # instead of leaving the rotor spinning when the process exits.
     interrupted = {"flag": False}
-
-    def on_sigint(_signum, _frame):
-        interrupted["flag"] = True
-    signal.signal(signal.SIGINT, on_sigint)
+    signal.signal(signal.SIGINT, lambda *_: interrupted.__setitem__("flag", True))
 
     try:
-        lidar.connect(port=port, baudrate=args.baudrate, timeout=3.0)
+        with RPLidarC1(port=port, baudrate=args.baudrate, timeout=2.0) as lidar:
+            print(f"Starting motor at PWM {args.motor_pwm}.")
+            lidar.set_motor_pwm(args.motor_pwm)
 
-        print(f"Starting motor at PWM {args.motor_pwm}.")
-        lidar.set_motor_pwm(args.motor_pwm)
-
-        # Use the legacy scan format here so the data is easy to print
-        # and reason about. Later experiments switch to express mode for
-        # higher throughput.
-        scan_generator = lidar.start_scan()
-
-        print("Scanning. Press Ctrl+C to stop.")
-        for idx, sample in enumerate(scan_generator()):
-            if interrupted["flag"]:
-                break
-            print(
-                f"[{idx:5d}]  "
-                f"start={int(bool(sample.start_flag))}  "
-                f"q={sample.quality:3d}  "
-                f"angle={sample.angle:7.2f}  "
-                f"dist={sample.distance:7.1f}"
-            )
-            if args.count > 0 and idx + 1 >= args.count:
-                break
-
+            print("Scanning. Press Ctrl+C to stop.")
+            for idx, sample in enumerate(lidar.iter_scans()):
+                if interrupted["flag"]:
+                    break
+                print(
+                    f"[{idx:5d}]  "
+                    f"start={int(sample.start_flag)}  "
+                    f"q={sample.quality:3d}  "
+                    f"angle={sample.angle:7.2f}  "
+                    f"dist={sample.distance:7.1f}"
+                )
+                if args.count > 0 and idx + 1 >= args.count:
+                    break
     except Exception as exc:
         print(f"Scan failed: {exc}", file=sys.stderr)
         return 1
-    finally:
-        # Order matters: stop scanning before stopping the motor, so
-        # the sensor's command buffer is in a clean state on next run.
-        try:
-            print("Stopping motor.")
-            lidar.stop()
-            lidar.set_motor_pwm(0)
-        except Exception as exc:
-            print(f"Warning: shutdown step failed: {exc}", file=sys.stderr)
-        try:
-            lidar.disconnect()
-            print("Disconnected.")
-        except Exception as exc:
-            print(f"Warning: disconnect failed: {exc}", file=sys.stderr)
     return 0
 
 
