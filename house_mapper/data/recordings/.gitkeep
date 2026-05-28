@@ -1,0 +1,15 @@
+# Place scan CSV recordings here.
+#
+# Anything in this folder is replayable via:
+#
+#     python main.py --replay <filename>.csv
+#
+# Bare filenames are resolved relative to this directory, so you do
+# not need to type the full path. Generate recordings with the
+# --record flag while running live, or with the python track's
+# experiment 08:
+#
+#     python main.py --record                       # while mapping live
+#     # or, from python/:
+#     python experiments/08_save_scan_to_csv.py --output \
+#         ../house_mapper/data/recordings/scan_mykitchen.csv

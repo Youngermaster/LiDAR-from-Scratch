@@ -62,6 +62,7 @@ from __future__ import annotations
 import argparse
 import glob
 import math
+import os
 import platform
 import sys
 import threading
@@ -69,7 +70,11 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import pygame
+# Silence pygame's "Hello from the pygame community" banner. Must be
+# set before pygame is imported.
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
+
+import pygame  # noqa: E402
 
 # Allow `from lib.rplidar_c1 import ...` when running this file directly.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))

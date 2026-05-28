@@ -23,6 +23,9 @@ build understanding, written so each file can be read end-to-end as a lesson.
 - [`python/`](./python/README.md) - Python track, start here.
 - [`cpp/`](./cpp/README.md) - C++ track, runs against the official SDK.
 - [`rust/`](./rust/README.md) - Optional Rust track.
+- [`house_mapper/`](./house_mapper/README.md) - Walk-and-scan 2D mapping
+  subproject. Builds an occupancy grid as you carry the LiDAR around the
+  house, with three switchable views (map, live scan, distance dashboard).
 
 ---
 

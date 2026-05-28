@@ -1,0 +1,6 @@
+# Snapshot saves land here. Pressing `S` in the running app writes:
+#
+#     map_<timestamp>.png           the occupancy grid as a grayscale image
+#     trajectory_<timestamp>.csv    the sensor path the mapper estimated
+#
+# Both files share the same timestamp so they sort together.

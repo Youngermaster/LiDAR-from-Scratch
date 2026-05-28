@@ -1,0 +1,26 @@
+# =====================================================================
+# house_mapper dependencies.
+#
+# Keep this list short. The parent repo's CLAUDE.md "minimal
+# dependencies" rule applies here too: pyserial for the wire, numpy
+# for math, scipy only for cKDTree (ICP nearest neighbor),
+# pygame for the UI. No data science stacks, no web frameworks.
+# =====================================================================
+
+# Serial transport for the RPLIDAR C1.
+pyserial>=3.5,<4.0
+
+# Numerical work: pose math, scan transforms, grid updates.
+numpy>=1.26,<3.0
+
+# Only cKDTree from scipy.spatial. Pulled in because brute-force
+# nearest neighbor over 500x500 points per ICP iteration is wasteful
+# on a Mac that already has scipy in most data envs.
+scipy>=1.11,<2.0
+
+# Real-time UI. Same version range as python/requirements.txt.
+pygame>=2.5,<3.0
+
+# Optional: Pillow for saving PNG snapshots of the map. Pygame can
+# also save BMP via pygame.image.save, so this is convenience.
+Pillow>=10.0,<12.0
