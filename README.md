@@ -2,10 +2,10 @@
 
 ## Demo
 
-<video src="https://github.com/Youngermaster/LiDAR-from-Scratch/raw/main/.github/assets/house-mapper-video.mp4" controls width="720"></video>
+<video src="https://github.com/Youngermaster/LiDAR-from-Scratch/raw/main/.github/assets/house-mapper-video.gif" controls width="720"></video>
 
 > If the player does not appear above (most browsers other than Safari do
-> not play QuickTime `.mov` inline), [download or view the demo here](./.github/assets/house-mapper-video.mp4).
+> not play QuickTime `.mov` inline), [download or view the demo here](./.github/assets/house-mapper-video.gif).
 
 A hands-on, multi-language learning playground for the **SLAMTEC RPLIDAR C1**
 2D LiDAR sensor. Each program in this repository is a small, standalone lesson
