@@ -12,6 +12,13 @@ direct serial protocol per `docs/protocol-notes.md`), but is
 organized as a proper Python package with separated concerns and
 unit tests.
 
+## Demo
+
+<video src="https://github.com/Youngermaster/LiDAR-from-Scratch/raw/main/.github/assets/house-mapper-video.mov" controls width="720"></video>
+
+> If the player does not appear above (most browsers other than Safari do
+not play QuickTime `.mov` inline), [download or view the demo here](../.github/assets/house-mapper-video.mov).
+
 ## Scope
 
 What this does:
