@@ -14,10 +14,10 @@ unit tests.
 
 ## Demo
 
-<video src="https://github.com/Youngermaster/LiDAR-from-Scratch/raw/main/.github/assets/house-mapper-video.mov" controls width="720"></video>
+<video src="https://github.com/Youngermaster/LiDAR-from-Scratch/raw/main/.github/assets/house-mapper-video.mp4" controls width="720"></video>
 
 > If the player does not appear above (most browsers other than Safari do
-not play QuickTime `.mov` inline), [download or view the demo here](../.github/assets/house-mapper-video.mov).
+> not play QuickTime `.mov` inline), [download or view the demo here](../.github/assets/house-mapper-video.mp4).
 
 ## Scope
 
@@ -164,22 +164,22 @@ python main.py --replay my_apartment.csv
 
 Three views, switch with the number keys:
 
-| Key | View              | What it shows                                              |
-| --- | ----------------- | ---------------------------------------------------------- |
-| 1   | Map view          | Occupancy grid being built, trajectory, current pose.      |
-| 2   | Live scan view    | Just the current scan in the body frame, like RViz.        |
-| 3   | Distance view     | Numeric distance in 12 angular sectors, plus min/max.      |
+| Key | View           | What it shows                                         |
+| --- | -------------- | ----------------------------------------------------- |
+| 1   | Map view       | Occupancy grid being built, trajectory, current pose. |
+| 2   | Live scan view | Just the current scan in the body frame, like RViz.   |
+| 3   | Distance view  | Numeric distance in 12 angular sectors, plus min/max. |
 
 Common keys (any view):
 
-| Key       | Action                                                   |
-| --------- | -------------------------------------------------------- |
-| +  /  =   | Zoom in                                                  |
-| -         | Zoom out                                                 |
-| SPACE     | Pause / resume map building (rendering keeps running)    |
-| R         | Reset the map (does not stop the sensor)                 |
-| S         | Save snapshot: PNG of the map + CSV of the trajectory    |
-| ESC / Q   | Quit (motor stops cleanly on exit)                       |
+| Key     | Action                                                |
+| ------- | ----------------------------------------------------- |
+| + / =   | Zoom in                                               |
+| -       | Zoom out                                              |
+| SPACE   | Pause / resume map building (rendering keeps running) |
+| R       | Reset the map (does not stop the sensor)              |
+| S       | Save snapshot: PNG of the map + CSV of the trajectory |
+| ESC / Q | Quit (motor stops cleanly on exit)                    |
 
 ## Files
 
