@@ -17,6 +17,11 @@ numpy>=1.26,<3.0
 # Visualization for live plots and CSV replay.
 matplotlib>=3.8,<4.0
 
+# Used only by stuff/pygame_stuff.py: a polished, RViz-style live
+# viewer. The numbered learning experiments under experiments/ stay on
+# matplotlib because matplotlib is what most readers already know.
+pygame>=2.5,<3.0
+
 # Note: we deliberately do NOT depend on `pyrplidar` or `rplidar`.
 # Their decoders are incorrect for the C1's firmware (firmware string
 # missing in INFO, "index out of range" in scan-node parsing,

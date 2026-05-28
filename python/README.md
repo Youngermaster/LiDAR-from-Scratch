@@ -65,6 +65,29 @@ exit, that is a bug worth reporting.
   exceptions.
 - Type hints on all function signatures.
 
+## The `stuff/` directory
+
+Code under `stuff/` is for polished tools and one-offs, not lessons.
+The flagship entry is `stuff/pygame_stuff.py`, an RViz / Nav2 flavored
+live viewer built on pygame: dark theme, labeled concentric range
+rings, ROS X (red) / Y (green) axes, distance-coloured points, and a
+heads-up display with the live scan rate and point count. Run it
+after the experiments to feel how the same data reads when you
+visualize it the way roboticists actually do:
+
+```bash
+pip install -r requirements.txt        # installs pygame too
+python stuff/pygame_stuff.py
+```
+
+Keyboard inside the window: `+/-` zoom, `R` rings, `G` grid, `T`
+trail, `SPACE` pause, `ESC` or `Q` to quit.
+
+If you want to walk through a space and build a 2D map, see the
+`house_mapper/` subproject at the repo root. It uses the same driver
+this `python/` directory exposes but layers ICP scan matching and an
+occupancy grid on top.
+
 ## The `lib/` package
 
 `lib/rplidar_c1.py` is a small, from-scratch RPLIDAR C1 driver built on
